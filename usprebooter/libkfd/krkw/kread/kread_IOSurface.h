@@ -249,13 +249,13 @@ void kread_IOSurface_find_proc(struct kfd* kfd)
     proc_kaddr = unsign_kaddr(proc_kaddr);
     
     while (proc_kaddr != 0) {
-        i32 pid = dynamic_kget(proc, p_pid, proc_kaddr);
+        i32 pid = dynamic_kget(proc__p_pid, proc_kaddr);
         if (pid == kfd->info.env.pid) {
             kfd->info.kernel.current_proc = proc_kaddr;
             break;
         }
 
-        proc_kaddr = dynamic_kget(proc, p_list_le_prev, proc_kaddr);
+        proc_kaddr = dynamic_kget(proc__p_list__le_prev, proc_kaddr);
     }
     bool EXPERIMENTAL_DYNAMIC_PATCHFINDER = true;
     if(import_kfd_offsets() == -1 && EXPERIMENTAL_DYNAMIC_PATCHFINDER) {
