@@ -7,7 +7,7 @@
 
 #include "krw.h"
 #include "libkfd.h"
-#include "mdc/helpers.h"
+//#include "mdc/helpers.h"
 #include "kpf/patchfinder.h"
 #define SYSTEM_VERSION_LESS_THAN_OR_EQUAL_TO(v)     ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] != NSOrderedDescending)
 #include <UIKit/UIKit.h>
