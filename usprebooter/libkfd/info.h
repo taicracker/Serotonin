@@ -14,13 +14,13 @@
 #define dynamic_info(field_name)    (kern_versions[kfd->info.env.vid].field_name)
 #define dynamic_uget(object, field, object_uaddr)                                             \
 ({                                                                                        \
-u64 field_uaddr = (u64)(object_uaddr) + dynamic_offsetof(object, field);              \
+u64 field_uaddr = (u64)(object_uaddr) + dynamic_info(field);              \
 object##_##field##_t field_value = *(volatile object##_##field##_t*)(field_uaddr);    \
 field_value;                                                                          \
 })
 #define dynamic_uset(object, field, object_uaddr, field_value)                                   \
 do {                                                                                         \
-u64 field_uaddr = (u64)(object_uaddr) + dynamic_offsetof(object, field);                 \
+u64 field_uaddr = (u64)(object_uaddr) + dynamic_info(field);                 \
 *(volatile object##_##field##_t*)(field_uaddr) = (object##_##field##_t)(field_value);    \
 } while (0)
 
