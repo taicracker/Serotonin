@@ -9,7 +9,8 @@
 #include "libkfd.h"
 #include "mdc/helpers.h"
 #include "kpf/patchfinder.h"
-
+#define SYSTEM_VERSION_LESS_THAN_OR_EQUAL_TO(v)     ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] != NSOrderedDescending)
+#include <UIKit/UIKit.h>
 uint64_t _kfd = 0;
 uint64_t unsign_kptr(uint64_t pac_kaddr) {
     if ((pac_kaddr & 0xFFFFFF0000000000) == 0xFFFFFF0000000000) {
@@ -25,7 +26,13 @@ uint64_t do_kopen(uint64_t puaf_pages, uint64_t puaf_method, uint64_t kread_meth
 {
 //    remove([NSString stringWithFormat:@"%@/Documents/kfund_offsets.plist", NSHomeDirectory()].UTF8String);  //TEMPORARY: remove offsets plist to check if patchfinder is working
 //    do_static_patchfinder();
-    _kfd = kopen(puaf_pages, puaf_method, kread_method, kwrite_method);
+    uint64_t finalkread = kread_method;
+    uint64_t finalkwrite = kwrite_method;
+    if(SYSTEM_VERSION_LESS_THAN_OR_EQUAL_TO(@"15.7.8") && !SYSTEM_VERSION_LESS_THAN_OR_EQUAL_TO(@"13.7")) {
+        finalkread = 2;
+        finalkwrite = 2;
+    }
+    _kfd = kopen(puaf_pages, puaf_method, finalkread, finalkwrite);
     return _kfd;
 }
 

@@ -7,12 +7,23 @@
 
 #include "info/dynamic_info.h"
 #include "info/static_info.h"
-
+#include <UIKit/UIKit.h>
 /*
  * Note that these macros assume that the kfd pointer is in scope.
  */
 #define dynamic_info(field_name)    (kern_versions[kfd->info.env.vid].field_name)
+#define dynamic_uget(object, field, object_uaddr)                                             \
+    ({                                                                                        \
+        u64 field_uaddr = (u64)(object_uaddr) + dynamic_info(field);              \
+        object##_##field##_t field_value = *(volatile object##_##field##_t*)(field_uaddr);    \
+        field_value;                                                                          \
+    })
 
+#define dynamic_uset(object, field, object_uaddr, field_value)                                   \
+    do {                                                                                         \
+        u64 field_uaddr = (u64)(object_uaddr) + dynamic_info(field);                 \
+        *(volatile object##_##field##_t*)(field_uaddr) = (object##_##field##_t)(field_value);    \
+    } while (0)
 #define dynamic_kget(field_name, object_kaddr)                                    \
     ({                                                                            \
         u64 tmp_buffer = 0;                                                       \
@@ -42,10 +53,17 @@
         u64 field_kaddr = (u64)(object_kaddr) + offsetof(object_name, field_name);    \
         kwrite((u64)(kfd), (&tmp_buffer), (field_kaddr), (sizeof(tmp_buffer)));       \
     } while (0)
-
+#define SYSTEM_VERSION_LESS_THAN_OR_EQUAL_TO(v)     ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] != NSOrderedDescending)
 const char info_copy_sentinel[] = "p0up0u was here";
 const u64 info_copy_sentinel_size = sizeof(info_copy_sentinel);
-
+bool isarm64e(void) {
+    int ptrAuthVal = 0;
+    size_t len = sizeof(ptrAuthVal);
+    assert(sysctlbyname("hw.optional.arm.FEAT_PAuth", &ptrAuthVal, &len, NULL, 0) != -1);
+    if(ptrAuthVal != 0)
+        return true;
+    return false;
+}
 void info_init(struct kfd* kfd)
 {
     /*
@@ -89,9 +107,13 @@ void info_init(struct kfd* kfd)
     usize size2 = sizeof(kern_version);
     assert_bsd(sysctlbyname("kern.version", &kern_version, &size2, NULL, 0));
     print_string(kern_version);
-    
+    if(SYSTEM_VERSION_LESS_THAN_OR_EQUAL_TO(@"16.6.1") && !SYSTEM_VERSION_LESS_THAN_OR_EQUAL_TO(@"15.8")) {
     kfd->info.env.vid = 0;
-    
+    } else if(SYSTEM_VERSION_LESS_THAN_OR_EQUAL_TO(@"15.7.8") && !SYSTEM_VERSION_LESS_THAN_OR_EQUAL_TO(@"13.7") && !isarm64e()) {
+        kfd->info.env.vid = 1;
+    } else if(SYSTEM_VERSION_LESS_THAN_OR_EQUAL_TO(@"15.7.2") && !SYSTEM_VERSION_LESS_THAN_OR_EQUAL_TO(@"13.7") && isarm64e()) {
+        kfd->info.env.vid = 4;
+    }
     //set offset from static patchfinder
 //    kern_versions[kfd->info.env.vid].kernelcache__cdevsw = off_cdevsw;
 //    kern_versions[kfd->info.env.vid].kernelcache__gPhysBase = off_gPhysBase;

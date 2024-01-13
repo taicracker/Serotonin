@@ -27,11 +27,13 @@ enum puaf_method {
 enum kread_method {
     kread_kqueue_workloop_ctl,
     kread_sem_open,
+    kread_IOSurface,
 };
 
 enum kwrite_method {
     kwrite_dup,
     kwrite_sem_open,
+    kwrite_IOSurface,
 };
 
 u64 kopen(u64 puaf_pages, u64 puaf_method, u64 kread_method, u64 kwrite_method);

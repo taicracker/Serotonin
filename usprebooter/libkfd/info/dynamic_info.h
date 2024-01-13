@@ -20,6 +20,13 @@ struct dynamic_info {
     u64 task__map;
     // struct thread
     u64 thread__thread_id;
+    // IOSurface addresses
+    u64 isa;
+    u64 PixelFormat;
+    u64 AllocSize;
+    u64 UseCountPtr;
+    u64 IndexedTimestampPtr;
+    u64 ReadDisplacement;
     // kernelcache static addresses (perf)
     u64 kernelcache__cdevsw;                          // "spec_open type" or "Can't mark ptc as kqueue ok"
     u64 kernelcache__gPhysBase;                       // "%s: illegal PA: 0x%llx; phys base 0x%llx, size 0x%llx"
@@ -30,6 +37,7 @@ struct dynamic_info {
     u64 kernelcache__ptov_table;                      // "%s: illegal PA: 0x%llx; phys base 0x%llx, size 0x%llx"
     u64 kernelcache__vn_kqfilter;                     // "Invalid knote filter on a vnode!"
     u64 kslide; // KSLIDE
+    
 };
 
 struct dynamic_info kern_versions[] = {
@@ -44,6 +52,31 @@ struct dynamic_info kern_versions[] = {
         .proc__object_size = 0,
         .task__map = 0x0028,
         .thread__thread_id = 0,
+        .kernelcache__cdevsw = 0,
+        .kernelcache__gPhysBase = 0,
+        .kernelcache__gPhysSize = 0,
+        .kernelcache__gVirtBase = 0,
+        .kernelcache__perfmon_dev_open = 0,
+        .kernelcache__perfmon_devices = 0,
+        .kernelcache__ptov_table = 0,
+        .kernelcache__vn_kqfilter = 0,
+    },
+    {
+        .kern_version = "Darwin Kernel Version 21.x.x / arm64e",
+        .kread_kqueue_workloop_ctl_supported = false,
+        .perf_supported = true,
+        .proc__p_list__le_prev = 0x0008,
+        .proc__p_pid = 0x0060,
+        .proc__p_fd__fd_ofiles = 0x00f8,
+        .proc__object_size = 0,
+        .task__map = 0x0028,
+        .thread__thread_id = 0,
+        .isa = 0x0,
+        .PixelFormat = 0xA4,
+        .AllocSize = 0xAC,
+        .UseCountPtr = 0xC0,
+        .IndexedTimestampPtr = 0x360,
+        .ReadDisplacement = 0x14,
         .kernelcache__cdevsw = 0,
         .kernelcache__gPhysBase = 0,
         .kernelcache__gPhysSize = 0,
